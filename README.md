@@ -13,5 +13,6 @@ Personal workspace for [CS336](https://stanford-cs336.github.io/spring2025/) ass
 | `assignment5-alignment/` | Assignment 5: alignment |
 | `notes/` | Course notes |
 | `resources/` | References, links, and shared materials |
+| `experiments/order_capacity/` | CPU toy tests for distillation order (H1, H3) |
 
 Each assignment directory holds its own README (and logbook where applicable).
