@@ -11,7 +11,8 @@ Personal workspace for [CS336](https://stanford-cs336.github.io/spring2025/) ass
 | `assignment3-scaling/` | Assignment 3: scaling |
 | `assignment4-data/` | Assignment 4: data |
 | `assignment5-alignment/` | Assignment 5: alignment |
+| `lectures/01-tokenization/` | Lecture 1 homework: problem, answer template, blank BPE code |
 | `notes/` | Course notes |
 | `resources/` | References, links, and shared materials |
 
-Each assignment directory holds its own README (and logbook where applicable).
+Each assignment directory holds its own README (and logbook where applicable). Lecture homework is a short exercise matched to that lecture. The assignment directories hold the full coursework.
