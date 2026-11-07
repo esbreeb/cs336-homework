@@ -1,4 +1,4 @@
-"""第一讲作业的代码。题目在 problem.md，简答填在 answer.md。
+"""第一讲作业的留空代码。题目在 problem.md，完整实现在 answer.py。
 
 只实现标了 NotImplementedError 的函数，不要改类的字段、函数签名和文末自测。
 行为与 CS336 Lecture 1 的最小 BPE 一致：从 UTF-8 字节出发，反复合并最高频相邻 pair。

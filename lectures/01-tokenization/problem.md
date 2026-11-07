@@ -4,22 +4,22 @@
 
 这一份停在讲座里的最小分词器。Assignment 1 另外要求 GPT-2 预分词、special token，以及 Transformer 的训练。
 
-## 要交的两个文件
+## 三个文件
 
 | 文件 | 做什么 |
 | --- | --- |
-| [`answer.md`](answer.md) | 简答模版。把表和空行填上。 |
-| [`bpe.py`](bpe.py) | 留空的代码。只填标了 `NotImplementedError` 的函数。 |
+| `problem.md` | 题目。 |
+| [`answer.py`](answer.py) | 答案模版。完整可运行的实现，用来对照。 |
+| [`bpe.py`](bpe.py) | 留空的代码。把标了 `NotImplementedError` 的函数填上。 |
+
+`answer.py` 和 `bpe.py` 的接口一致。在编辑器里对这两个文件做 diff，差的就是要写的函数体。
 
 不要改 `bpe.py` 的函数签名、`BPETokenizerParams` 的字段，以及文件末尾的 `_self_check`。可以自己加 import。不要调用 `tiktoken` 或 Hugging Face 的 tokenizer。
 
-填完后在本目录运行：
-
 ```bash
-python3 bpe.py
+python3 answer.py   # 答案，应打印 ok
+python3 bpe.py      # 留空文件填完后也应打印 ok
 ```
-
-通过时打印 `ok`，退出码为 0。
 
 ## 背景
 
@@ -48,19 +48,9 @@ BPE（Gage 1994；Sennrich 等 2016；GPT-2 沿用）在语料上学习词表：
 
 `encode` 把新字符串变成字节 id，再按 `merges` 的插入顺序把训练得到的合并逐条重放。`decode` 按 `vocab` 取出字节，拼起来，用 UTF-8 解码。
 
-## 第一部分：简答
+`answer.py` 里用断言记下这些结果：`Hello, 🌍! 你好!` 是 20 个字节、13 个字符，character 压缩率是 20/13，byte 压缩率是 1；`"ab ab ab"` 三次合并依次得到 `(97, 98) → 256`、`(256, 32) → 257`、`(257, 257) → 258`。第二次 `(256, 32)` 和 `(32, 256)` 次数相同，取从左到右先出现的那对。`"aaaa"` 里 `(97, 97)` 计 3 次，一次 `merge` 得到 `[256, 256]`。
 
-写在 [`answer.md`](answer.md)。手算题先写结果，再用你自己的 `train_bpe` 对照。自测里没有这道题的答案。
-
-1. `encode`、`decode` 和 vocabulary size 各指什么？
-2. 对字符串 `Hello, 🌍! 你好!`，填 UTF-8 字节数、字符数、character tokenizer 的压缩率、byte tokenizer 的压缩率。再各用一句话写 character、byte、word 三种切分的主要问题。压缩率可以写成分数或小数。
-3. 词表里的 UNK 会给解码和 perplexity 带来什么问题？
-4. 对 `"ab ab ab"` 做 3 次 merge。每一步写出 pair（两个整数）、出现次数、新 token id，以及 merge 之后的整条序列。并列时用上面的规则。
-5. 对 `"aaaa"`：pair `(97, 97)` 的计数是多少？调用一次 `merge(..., 256)` 之后序列是什么？为什么这两个数字不一样？
-6. 为什么 `encode` 必须按训练顺序重放 `merges`？用第 4 题里第二次合并所依赖的 token id 说明，颠倒顺序之后哪些合并不会发生。
-7. 相对 byte tokenizer，BPE 用更大的词表换来了什么？为什么讲座仍把分词叫作 necessary evil？
-
-## 第二部分：代码
+## 要写的代码
 
 在 [`bpe.py`](bpe.py) 里实现：
 
@@ -73,4 +63,4 @@ BPE（Gage 1994；Sennrich 等 2016；GPT-2 沿用）在语料上学习词表：
 
 `CharacterTokenizer` 用 `ord` / `chr`。`ByteTokenizer` 用 UTF-8。BPE 的训练和编码遵守上一节的规则。`vocab` 始终包含 0 到 255 的单字节，再加上每个新 token。
 
-自测会检查往返、空串、不重叠替换、提前停止、并列时的选择，以及 `"the cat in the hat"` 上 3 次合并的结果。第 4 题的 `"ab ab ab"` 不在自测里。
+`bpe.py` 末尾的自测检查往返、空串、不重叠替换、提前停止、并列时的选择，以及 `"the cat in the hat"` 上 3 次合并。`"ab ab ab"` 的逐步结果在 `answer.py` 里。
