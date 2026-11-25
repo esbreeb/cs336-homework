@@ -1,18 +1,20 @@
-"""第一讲作业的留空代码。题目在 problem.md，完整实现在 answer.py。
+"""第一讲作业的提交实现。题目在 problem.md，对照实现在 answer.py。
 
-只实现标了 NotImplementedError 的函数，不要改类的字段、函数签名和文末自测。
 行为与 CS336 Lecture 1 的最小 BPE 一致：从 UTF-8 字节出发，反复合并最高频相邻 pair。
 不做 GPT-2 预分词，不处理 special token，也不要求速度。
 """
 
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 
 
 def get_compression_ratio(string: str, indices: list[int]) -> float:
     """UTF-8 字节数 / token 数。indices 为空时返回 0.0。"""
-    raise NotImplementedError
+    if not indices:
+        return 0.0
+    return len(string.encode("utf-8")) / len(indices)
 
 
 class Tokenizer:
@@ -27,20 +29,20 @@ class CharacterTokenizer(Tokenizer):
     """一个 Unicode 字符对应一个 token，token id 是 ord(char)。"""
 
     def encode(self, string: str) -> list[int]:
-        raise NotImplementedError
+        return [ord(char) for char in string]
 
     def decode(self, indices: list[int]) -> str:
-        raise NotImplementedError
+        return "".join(chr(index) for index in indices)
 
 
 class ByteTokenizer(Tokenizer):
     """一个 UTF-8 字节对应一个 token，token id 落在 0..255。"""
 
     def encode(self, string: str) -> list[int]:
-        raise NotImplementedError
+        return list(string.encode("utf-8"))
 
     def decode(self, indices: list[int]) -> str:
-        raise NotImplementedError
+        return bytes(indices).decode("utf-8")
 
 
 def merge(indices: list[int], pair: tuple[int, int], new_index: int) -> list[int]:
@@ -49,7 +51,20 @@ def merge(indices: list[int], pair: tuple[int, int], new_index: int) -> list[int
     命中后跳过这两个位置，不回头。pair 不出现时，返回内容相同的新列表。
     例：merge([97, 97, 97, 97], (97, 97), 256) == [256, 256]。
     """
-    raise NotImplementedError
+    merged: list[int] = []
+    index = 0
+    while index < len(indices):
+        if (
+            index + 1 < len(indices)
+            and indices[index] == pair[0]
+            and indices[index + 1] == pair[1]
+        ):
+            merged.append(new_index)
+            index += 2
+        else:
+            merged.append(indices[index])
+            index += 1
+    return merged
 
 
 @dataclass(frozen=True)
@@ -67,13 +82,27 @@ def train_bpe(string: str, num_merges: int) -> BPETokenizerParams:
     """在单条字符串上训练 BPE，最多做 num_merges 次合并。
 
     - 初始 token 是 UTF-8 字节。vocab[0..255] 固定为单字节。
-    - 每一轮统计当前序列里全部相邻 pair 的出现次数（重叠的也计数）。可以用 collections.defaultdict。
+    - 每一轮统计当前序列里全部相邻 pair 的出现次数（重叠的也计数）。
     - 次数最高的 pair 若有多个，选本轮从左到右最先被记到的那个。
     - 新 token id 从 256 起递增。vocab[new] 是左右两个 token 的字节拼接。
     - 用 merge 替换整条序列，再进入下一轮。
-    - 序列里已经没有相邻 pair 时提前停止，不要报错。
+    - 序列里已经没有相邻 pair 时提前停止。
     """
-    raise NotImplementedError
+    indices = list(string.encode("utf-8"))
+    merges: dict[tuple[int, int], int] = {}
+    vocab: dict[int, bytes] = {token_id: bytes([token_id]) for token_id in range(256)}
+    for _ in range(num_merges):
+        counts: dict[tuple[int, int], int] = defaultdict(int)
+        for left, right in zip(indices, indices[1:]):
+            counts[(left, right)] += 1
+        if not counts:
+            break
+        pair = max(counts, key=counts.get)
+        new_index = 256 + len(merges)
+        merges[pair] = new_index
+        vocab[new_index] = vocab[pair[0]] + vocab[pair[1]]
+        indices = merge(indices, pair, new_index)
+    return BPETokenizerParams(vocab=vocab, merges=merges)
 
 
 class BPETokenizer(Tokenizer):
@@ -82,11 +111,14 @@ class BPETokenizer(Tokenizer):
 
     def encode(self, string: str) -> list[int]:
         """先变成字节 id，再按 merges 的插入顺序逐条重放。"""
-        raise NotImplementedError
+        indices = list(string.encode("utf-8"))
+        for pair, new_index in self.params.merges.items():
+            indices = merge(indices, pair, new_index)
+        return indices
 
     def decode(self, indices: list[int]) -> str:
         """把每个 token id 换成 vocab 里的字节，拼起来再按 UTF-8 解码。"""
-        raise NotImplementedError
+        return b"".join(self.params.vocab[index] for index in indices).decode("utf-8")
 
 
 def _self_check() -> None:

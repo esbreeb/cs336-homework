@@ -10,15 +10,15 @@
 | --- | --- |
 | `problem.md` | 题目。 |
 | [`answer.py`](answer.py) | 答案模版。完整可运行的实现，用来对照。 |
-| [`bpe.py`](bpe.py) | 留空的代码。把标了 `NotImplementedError` 的函数填上。 |
+| [`bpe.py`](bpe.py) | 提交的实现。接口与 `answer.py` 相同，自测已通过。 |
 
-`answer.py` 和 `bpe.py` 的接口一致。在编辑器里对这两个文件做 diff，差的就是要写的函数体。
+`answer.py` 和 `bpe.py` 的接口一致。
 
-不要改 `bpe.py` 的函数签名、`BPETokenizerParams` 的字段，以及文件末尾的 `_self_check`。可以自己加 import。不要调用 `tiktoken` 或 Hugging Face 的 tokenizer。
+不要调用 `tiktoken` 或 Hugging Face 的 tokenizer。
 
 ```bash
-python3 answer.py   # 答案，应打印 ok
-python3 bpe.py      # 留空文件填完后也应打印 ok
+python3 answer.py   # 答案模版，打印 ok
+python3 bpe.py      # 提交实现，打印 ok
 ```
 
 ## 背景
@@ -50,9 +50,9 @@ BPE（Gage 1994；Sennrich 等 2016；GPT-2 沿用）在语料上学习词表：
 
 `answer.py` 里用断言记下这些结果：`Hello, 🌍! 你好!` 是 20 个字节、13 个字符，character 压缩率是 20/13，byte 压缩率是 1；`"ab ab ab"` 三次合并依次得到 `(97, 98) → 256`、`(256, 32) → 257`、`(257, 257) → 258`。第二次 `(256, 32)` 和 `(32, 256)` 次数相同，取从左到右先出现的那对。`"aaaa"` 里 `(97, 97)` 计 3 次，一次 `merge` 得到 `[256, 256]`。
 
-## 要写的代码
+## 实现
 
-在 [`bpe.py`](bpe.py) 里实现：
+[`bpe.py`](bpe.py) 里已经提交：
 
 - `get_compression_ratio`
 - `CharacterTokenizer.encode` / `decode`
