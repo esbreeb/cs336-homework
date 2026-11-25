@@ -12,6 +12,7 @@ Personal workspace for [CS336](https://stanford-cs336.github.io/spring2025/) ass
 | `assignment4-data/` | Assignment 4: data |
 | `assignment5-alignment/` | Assignment 5: alignment |
 | `lectures/01-tokenization/` | Lecture 1 homework: problem, `answer.py`, submitted `bpe.py` |
+| `lectures/02-resources/` | Lecture 2 homework: problem, complete `answer.py`, blank `resources.py` |
 | `notes/` | Course notes |
 | `resources/` | References, links, and shared materials |
 
